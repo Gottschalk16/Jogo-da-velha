@@ -4,7 +4,7 @@ import './index.css';
 
 class Square extends React.Component{
     constructor(props){
-        // Sempre que definir um constructo deve ser chamado o super de uma subclasse
+        // Sempre que definir um constructor deve ser chamado o super de uma subclasse
         // Todos os componentes de class React que possuem um método constructor devem iniciá-lo com uma chamada super(props)
         super(props);
         this.state = {
