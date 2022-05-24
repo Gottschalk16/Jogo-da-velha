@@ -2,33 +2,36 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class Square extends React.Component{
-    constructor(props){
-        // Sempre que definir um constructor deve ser chamado o super de uma subclasse
-        // Todos os componentes de class React que possuem um método constructor devem iniciá-lo com uma chamada super(props)
-        super(props);
-        this.state = {
-            value: null,
-        };
-    }
-    render(){
-        return(
-            <button
-                className="square" 
-                onClick={() => this.props.onClick()}>
-                { this.props.value }
-            </button>
-        );
-    }
+function Square(props){
+    return(
+        <button
+            className="square" 
+            onClick={props.onClick}>
+            { props.value }
+        </button>
+    );
 }
-
 class Board extends React.Component{
     constructor(props){
         super(props);
         // Array de 9 posições nulas
         this.state = {
             squares : Array(9).fill(null),
+            xIsNext: true,
         };
+    }
+
+    handleClick(i){
+        const squares = this.state.squares.slice();
+        if (calcularVencedor(squares) || squares[i]){
+            return;
+        }
+        // Verificando se o X é o próximo
+        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({
+            squares: squares,
+            xIsNext : !this.state.xIsNext,
+        });
     }
 
     renderSquare(i){
@@ -41,7 +44,16 @@ class Board extends React.Component{
     }
 
     render() {
-        const status = 'Next player: X';
+        const winner = calcularVencedor(this.state.squares);
+        let status;
+        // Verifica se tem um vencedor
+        if (winner) {
+            status = 'Vencedor: ' + winner;
+        }else {
+            // Informa a vez do jogador através da property xIsNext
+            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
+        
 
         return (
             <div>
@@ -84,3 +96,22 @@ class Game extends React.Component{
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<Game />);
+
+function calcularVencedor(squares){
+    const lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+        const [a, b, c] = lines[i];
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]){
+            return squares[a];
+        }
+    }
+    return null;
+}
