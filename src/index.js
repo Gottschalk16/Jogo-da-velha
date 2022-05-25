@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-function Square(props){
+function Quadrado(props){
     return(
         <button
             className="square" 
@@ -11,13 +11,13 @@ function Square(props){
         </button>
     );
 }
-class Board extends React.Component{
+class Tabuleiro extends React.Component{
     constructor(props){
         super(props);
         // Array de 9 posições nulas
         this.state = {
             squares : Array(9).fill(null),
-            xIsNext: true,
+            xProximo: true,
         };
     }
 
@@ -27,16 +27,16 @@ class Board extends React.Component{
             return;
         }
         // Verificando se o X é o próximo
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        squares[i] = this.state.xProximo ? 'X' : 'O';
         this.setState({
             squares: squares,
-            xIsNext : !this.state.xIsNext,
+            xProximo : !this.state.xProximo,
         });
     }
 
-    renderSquare(i){
+    renderQuadrado(i){
         return (
-            <Square 
+            <Quadrado 
                 value={this.state.squares[i]} 
                 onClick={() => this.handleClick(i)}
                 />
@@ -44,14 +44,14 @@ class Board extends React.Component{
     }
 
     render() {
-        const winner = calcularVencedor(this.state.squares);
+        const ganhador = calcularVencedor(this.state.squares);
         let status;
         // Verifica se tem um vencedor
-        if (winner) {
-            status = 'Vencedor: ' + winner;
+        if (ganhador) {
+            status = 'Vencedor: ' + ganhador;
         }else {
-            // Informa a vez do jogador através da property xIsNext
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+            // Informa a vez do jogador através da property xProximo
+            status = 'Próximo jogador: ' + (this.state.xProximo ? 'X' : 'O');
         }
         
 
@@ -59,35 +59,35 @@ class Board extends React.Component{
             <div>
             <div className="status">{status}</div>
             <div className="board-row">
-                {this.renderSquare(0)}
-                {this.renderSquare(1)}
-                {this.renderSquare(2)}
+                {this.renderQuadrado(0)}
+                {this.renderQuadrado(1)}
+                {this.renderQuadrado(2)}
             </div>
             <div className="board-row">
-                {this.renderSquare(3)}
-                {this.renderSquare(4)}
-                {this.renderSquare(5)}
+                {this.renderQuadrado(3)}
+                {this.renderQuadrado(4)}
+                {this.renderQuadrado(5)}
             </div>
             <div className="board-row">
-                {this.renderSquare(6)}
-                {this.renderSquare(7)}
-                {this.renderSquare(8)}
+                {this.renderQuadrado(6)}
+                {this.renderQuadrado(7)}
+                {this.renderQuadrado(8)}
             </div>
             </div>
         );
     }
 }
 
-class Game extends React.Component{
+class Jogo extends React.Component{
     render(){
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board />
+                    <Tabuleiro />
                 </div>
                 <div className="game-info">
-                    <div>{/*status*/}</div>
-                    <ol>{/* Alguma coisa */}</ol>
+                    <div>{}</div>
+                    <ol>{}</ol>
                 </div>
             </div>
         );
@@ -95,10 +95,10 @@ class Game extends React.Component{
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<Game />);
+root.render(<Jogo />);
 
 function calcularVencedor(squares){
-    const lines = [
+    const linhas = [
         [0, 1, 2],
         [3, 4, 5],
         [6, 7, 8],
@@ -106,9 +106,10 @@ function calcularVencedor(squares){
         [1, 4, 7],
         [2, 5, 8],
         [2, 4, 6],
+        [0, 4, 8]
     ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
+    for (let i = 0; i < linhas.length; i++) {
+        const [a, b, c] = linhas[i];
         if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]){
             return squares[a];
         }
