@@ -5,46 +5,101 @@ import './index.css';
 function Quadrado(props){
     return(
         <button
-            className="square" 
+            className="square"
             onClick={props.onClick}>
             { props.value }
         </button>
     );
 }
 class Tabuleiro extends React.Component{
-    constructor(props){
+    // Rendezia o quadrado
+    renderQuadrado(i){
+        return (
+            <Quadrado
+                value={this.props.squares[i]}
+                onClick={() => this.props.onClick(i)}
+            />
+        );
+    }
+    // Cria os quadrados
+    RenderizarTab(_AParam){
+        for (let i = 0; i < 2; i++) {
+            var _ArrayQuadrado = <div className='board-now'>{this.renderQuadrados(_AParam)}</div>
+        }
+        return _ArrayQuadrado;
+    }
+    renderQuadrados(_AParam){
+        const _Array = [];
+        for (let i = _AParam[0]; i <= _AParam[1]; i++) {
+            _Array.push(this.renderQuadrado(i))
+        }
+        return _Array;
+    }
+
+    
+    render() {
+        return (
+            <div>
+                {this.RenderizarTab([0,2])}
+                {this.RenderizarTab([3,5])}
+                {this.RenderizarTab([6,8])}
+            </div>
+        );
+    }
+}
+
+class Jogo extends React.Component {
+    constructor(props) {
         super(props);
-        // Array de 9 posições nulas
         this.state = {
-            squares : Array(9).fill(null),
+            history: [{
+                squares: Array(9).fill(null),
+            }],
             xProximo: true,
+            passo : 0,
         };
     }
 
     handleClick(i){
-        const squares = this.state.squares.slice();
+        const historico = this.state.history.slice(0, this.state.passo + 1);
+        const atual = historico[historico.length - 1]
+        const squares = atual.squares.slice();
         if (calcularVencedor(squares) || squares[i]){
             return;
         }
-        // Verificando se o X é o próximo
         squares[i] = this.state.xProximo ? 'X' : 'O';
         this.setState({
-            squares: squares,
-            xProximo : !this.state.xProximo,
+            history: historico.concat([{
+                squares: squares
+            }]),
+            passo : historico.length,
+            xProximo: !this.state.xProximo,
         });
     }
 
-    renderQuadrado(i){
-        return (
-            <Quadrado 
-                value={this.state.squares[i]} 
-                onClick={() => this.handleClick(i)}
-                />
-        );
+    jumpTo(step){
+        this.setState({
+            passo: step,
+            // Define para true se step for par
+            xProximo: (step % 2) === 0
+        })
     }
 
     render() {
-        const ganhador = calcularVencedor(this.state.squares);
+        const historico = this.state.history.slice();
+        const atual = historico[this.state.passo]
+        const ganhador = calcularVencedor(atual.squares);
+
+        const movimentos = historico.map((step, move) => {
+            const desc = move ?
+            'Vá para o movimento #' + move :
+            'Vá para o início do jogo';
+            return (
+                <li key={move}>
+                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                </li>
+            )
+        })
         let status;
         // Verifica se tem um vencedor
         if (ganhador) {
@@ -53,41 +108,17 @@ class Tabuleiro extends React.Component{
             // Informa a vez do jogador através da property xProximo
             status = 'Próximo jogador: ' + (this.state.xProximo ? 'X' : 'O');
         }
-        
-
-        return (
-            <div>
-            <div className="status">{status}</div>
-            <div className="board-row">
-                {this.renderQuadrado(0)}
-                {this.renderQuadrado(1)}
-                {this.renderQuadrado(2)}
-            </div>
-            <div className="board-row">
-                {this.renderQuadrado(3)}
-                {this.renderQuadrado(4)}
-                {this.renderQuadrado(5)}
-            </div>
-            <div className="board-row">
-                {this.renderQuadrado(6)}
-                {this.renderQuadrado(7)}
-                {this.renderQuadrado(8)}
-            </div>
-            </div>
-        );
-    }
-}
-
-class Jogo extends React.Component{
-    render(){
         return (
             <div className="game">
                 <div className="game-board">
-                    <Tabuleiro />
+                    <Tabuleiro
+                        squares={atual.squares}
+                        onClick={(i) => this.handleClick(i)}
+                    />
                 </div>
                 <div className="game-info">
-                    <div>{}</div>
-                    <ol>{}</ol>
+                    <div>{status}</div>
+                    <ol>{movimentos}</ol>
                 </div>
             </div>
         );
